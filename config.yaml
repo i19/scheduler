@@ -1,0 +1,12 @@
+port: 80
+etcdhosts: ["1.1.1.","2.2.2.2"]
+etcdworkerprefix: "/worker_prefix"
+database:
+    mysqlhost: "1.1.1.1"
+    mysqlport: 3306
+    mysqluser: "root"
+    mysqlpassword: "root"
+    mysqldb: "scheduler"
+priorityfactor: 2
+kinds: ["kind1", "kind2"]
+

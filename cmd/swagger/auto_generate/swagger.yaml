@@ -1,0 +1,136 @@
+definitions:
+  errors.ErrorCode:
+    enum:
+    - 0
+    - 400
+    - 401
+    - 402
+    - 403
+    - 500
+    type: integer
+    x-enum-varnames:
+    - OK
+    - BadRequest
+    - Unauthorized
+    - Forbidden
+    - ResourceNotExist
+    - InternalServerError
+  handler.ResponseProtocol:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/errors.ErrorCode'
+        description: business code, 0 means ok
+      data:
+        description: result
+      message:
+        description: error message
+        type: string
+    type: object
+  handler.SubmitTaskRequest:
+    properties:
+      kind:
+        type: string
+      priority:
+        enum:
+        - high
+        - medium
+        - low
+        type: string
+      task: {}
+    required:
+    - kind
+    - priority
+    - task
+    type: object
+info:
+  contact: {}
+paths:
+  /api/tasks:
+    get:
+      description: 查询任务列表，可根据状态、类型和优先级过滤
+      parameters:
+      - description: 任务状态
+        in: query
+        name: status
+        type: string
+      - description: 任务类型
+        in: query
+        name: type
+        type: string
+      - description: 任务优先级
+        in: query
+        name: priority
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseProtocol'
+      summary: 查询任务列表
+      tags:
+      - Tasks
+    post:
+      consumes:
+      - application/json
+      description: 提交任务到Scheduler
+      parameters:
+      - description: 任务对象
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SubmitTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseProtocol'
+      summary: 提交任务
+      tags:
+      - Tasks
+  /api/tasks/{taskID}:
+    get:
+      description: 查询特定任务的执行状态
+      parameters:
+      - description: 任务ID
+        in: path
+        name: taskID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseProtocol'
+      summary: 查询任务状态
+      tags:
+      - Tasks
+  /api/tasks/run_again/{taskID}:
+    post:
+      consumes:
+      - application/json
+      description: 将指定任务再次运行，此过程会返回新的 taskID
+      parameters:
+      - description: 任务ID
+        in: path
+        name: taskID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponseProtocol'
+      summary: 重跑任务
+      tags:
+      - Tasks
+swagger: "2.0"
